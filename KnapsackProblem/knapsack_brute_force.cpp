@@ -61,11 +61,11 @@ int main() {
 
     knapsack_item_input.close();
 
+    //Begin iterating through all possible combinations
+
     for (auto item : knapsack_items) {
         knapsack_combination_output << item.item_name << "\n" << item.item_weight << "\n" << item.item_value << "\n";
     }
 
     knapsack_combination_output.close();
-
-    return 0;
 }
