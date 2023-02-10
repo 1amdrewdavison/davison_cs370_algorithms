@@ -16,12 +16,20 @@ prints out in return the optimal solution to that version of the problem with th
 #include <fstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 struct KnapsackItem {
     std::string item_name;
     int item_weight;
     int item_value;
 };
+
+std::string arrayToString(std::vector<int> combination) {
+    std::string str = "";
+    for (auto digit : combination) {
+        str += std::to_string(digit);
+    }
+}
 
 int main() {
     //Read in input file
@@ -61,10 +69,33 @@ int main() {
 
     knapsack_item_input.close();
 
-    //Begin iterating through all possible combinations
+    //Ask for knapsack capacity
+    int knapsack_limit;
 
-    for (auto item : knapsack_items) {
-        knapsack_combination_output << item.item_name << "\n" << item.item_weight << "\n" << item.item_value << "\n";
+    std::cout << "Enter knapsack weight limit:";
+    std::cin >> knapsack_limit;
+
+    //Begin iterating through all possible combinations
+    std::vector<int> item_selection_code(knapsack_items.size());
+    std::fill_n(item_selection_code, knapsack_items.size(), 0);
+
+    //Keep track of best combination
+    std::vector<int> item_selection_code(knapsack_items.size());
+    int best_weight = knapsack_limit + 1;
+    int best_value = -1;
+
+    for (int i = 0; i < knapsack_items.size(); i++) {
+        int selection_weight = 0;
+        int selection_value = 0;
+        
+        for (int j : item_selection_code) {
+            if (j = 1) {
+                selection_weight += knapsack_items[j].item_weight;
+                selection_value += knapsack_items[j].item_value;
+            }    
+        }
+
+        knapsack_combination_output << arrayToString(item_selection_code) << "\n" << selection_weight << "\n" << selection_value << "\n";
     }
 
     knapsack_combination_output.close();
