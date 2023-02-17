@@ -18,17 +18,42 @@ prints out in return the optimal solution to that version of the problem with th
 #include <vector>
 #include <algorithm>
 
+//Struct that holds all of the info on a given item
 struct KnapsackItem {
     std::string item_name;
     int item_weight;
     int item_value;
 };
 
-std::string arrayToString(std::vector<int> combination) {
+//Function to turn the combination array into a string
+std::string arrayToString(const std::vector<int> combination) {
     std::string str = "";
     for (auto digit : combination) {
         str += std::to_string(digit);
     }
+    return str;
+}
+
+//Function that iterates the array from, left to right as if it was a binary number in reverse.
+//If the starting digit is a zero, turn that into a one and the finish
+//Otherwise, continue iterating until a zero is found and turn the ones into zeros along the way
+//Returns true if successfully iterates, otherwise returns false to indicate that the combination array is finished
+bool iterateArray(std::vector<int>& combination) {
+    bool foundZero = false;
+    
+    for (int i = 0; i < combination.size(); i++) {
+        auto digit = combination[i];
+
+        if (digit == 0) {
+            combination[i] = 1;
+            foundZero = true;
+            break;
+        } else {
+            combination[i] = 0;
+        }
+    }
+
+    return foundZero;
 }
 
 int main() {
@@ -72,31 +97,49 @@ int main() {
     //Ask for knapsack capacity
     int knapsack_limit;
 
-    std::cout << "Enter knapsack weight limit:";
+    std::cout << "Enter knapsack weight limit: ";
     std::cin >> knapsack_limit;
 
     //Begin iterating through all possible combinations
     std::vector<int> item_selection_code(knapsack_items.size());
-    std::fill_n(item_selection_code, knapsack_items.size(), 0);
+    std::fill_n(item_selection_code.begin(), knapsack_items.size(), 0);
 
     //Keep track of best combination
-    std::vector<int> item_selection_code(knapsack_items.size());
+    std::vector<int> best_combination;
     int best_weight = knapsack_limit + 1;
     int best_value = -1;
 
-    for (int i = 0; i < knapsack_items.size(); i++) {
+    //This loop goes through each possible combination, totals its weight and value, prints it to output.txt, and saves the optimal solution
+    //To change this such that it skips the first possible combination (no items), turn this into a while loop
+    //I kept this first iteration in the case that the knapsack limit is 0, so that there is a solution
+    do {
         int selection_weight = 0;
         int selection_value = 0;
         
-        for (int j : item_selection_code) {
-            if (j = 1) {
-                selection_weight += knapsack_items[j].item_weight;
-                selection_value += knapsack_items[j].item_value;
+        //Total up weight and value based on the decision tree of the combination array
+        for (int i = 0; i < item_selection_code.size(); i++) {
+            int digit = item_selection_code[i];
+            
+            if (digit == 1) {
+                selection_weight += knapsack_items[i].item_weight;
+                selection_value += knapsack_items[i].item_value;
             }    
         }
-
+        
+        //Output to file
         knapsack_combination_output << arrayToString(item_selection_code) << "\n" << selection_weight << "\n" << selection_value << "\n";
-    }
+
+        //Update best solution if applicable
+        if (selection_weight <= knapsack_limit && selection_value > best_value) {
+            best_combination.assign(item_selection_code.begin(), item_selection_code.end());
+            best_weight = selection_weight;
+            best_value = selection_value;
+        }
+    } 
+    while (iterateArray(item_selection_code));
+
+    //Output optimal combination
+    knapsack_combination_output << arrayToString(best_combination) << "\n" << best_weight << "\n" << best_value << "\n";
 
     knapsack_combination_output.close();
 }
