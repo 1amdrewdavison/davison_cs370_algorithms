@@ -36,6 +36,7 @@ def graph_clear(adj_matrix):
     #should select cycles out of the graph according to the largest weights until there are no cycles left
     while (max_edge > 0):
         graph_covering.append(find_best_cycle)
+        #delete nodes
         max_edge = find_max_edge(graph)
         
     return graph_covering
