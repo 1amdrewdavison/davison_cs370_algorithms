@@ -5,11 +5,14 @@ import random
 def determine_fitness(tour):
     total = 0
     for i in tour:
-        total += np.linalg.norm(tour[i]-tour[i+1])   
+        if (i == len(tour) - 1):
+            total += np.linalg.norm(tour[i]-tour[0])
+        else:
+            total += np.linalg.norm(tour[i]-tour[i+1])   
     return total     
 
-num_cities = input("Enter a number of cities:")
-num_generations = input("Enter a number of generations:")
+num_cities = int(input("Enter a number of cities:"))
+num_generations = int(input("Enter a number of generations:"))
 generation_size = 100
 
 # Create a NumPy random generator object
@@ -29,25 +32,22 @@ for i in range(generation_size):
     
 
 #for i in range(num_generations):
-    
 
-x_data = [5, 10, 20, 50]
-y_data = [[1, 2], 
-           [2, 4], 
-           [3, 6], 
-           [4, 8]]
-# ^^ You do NOT need to plot the performance on multiple city sizes for this 
-# assignment, but it may be useful for the technical report of your final Project.
+print(cities)
+print(curr_generation[0])
+print(curr_fitness[0])    
+
+x_data = range(generation_size)
+y_data = curr_fitness
 
 # labels = ['First column description', 'Second column description']
-labels = ['$100$ cities', '$20$ cities']
+labels = ['tours', 'fitness']
 
 plt.plot(x_data, y_data, linestyle='-', marker='o')
 plt.legend(labels)
 plt.xlabel('Generation number ($N$)')
 plt.ylabel('Total Tour Distance')
 plt.title('Solution Quality over Time')
-plt.ylim(0, 25)
 fig = plt.gcf() # In order to save, this line MUST be in the same cell as plt.plot()!
 
 # If you wish to save the figure
