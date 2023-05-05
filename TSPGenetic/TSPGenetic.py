@@ -4,51 +4,44 @@ import random
 
 num_cities = int(input("Enter a number of cities:"))
 num_generations = int(input("Enter a number of generations:"))
-generation_size = 10
+generation_size = 100
 
-def determine_fitness(tour):
-    total = 0
+def determine_fitness(tour, cities):
+    total = 0.0
     for i in tour:
         if (i == len(tour) - 1):
-            total += np.linalg.norm(tour[i]-tour[0])
+            total += np.linalg.norm(cities[i]-cities[0])
         else:
-            total += np.linalg.norm(tour[i]-tour[i+1])   
+            total += np.linalg.norm(cities[i]-cities[i+1])   
     return total   
 
 def make_child(parent1, parent2, cities):
-    vertexes_left = True
-    start_vertex = 0
+    start_vertex = random.sample(range(num_cities),1)[0]
     
-    while(vertexes_left): 
-        child = []
-        child.append(start_vertex)
+    child = []
+    child.append(start_vertex)
+    
+    for i in range(1, num_cities):
+        p1_next_vertex = parent1[(parent1.index(start_vertex) + 1) % num_cities]
+        p2_next_vertex = parent2[(parent2.index(start_vertex) + 1) % num_cities]
+        p1_edge = np.linalg.norm(cities[start_vertex] - cities[p1_next_vertex])
+        p2_edge = np.linalg.norm(cities[start_vertex] - cities[p2_next_vertex])
         
-        for i in range(1, num_cities):
-            p1_next_vertex = parent1[(parent1.index(start_vertex) + 1) % num_cities]
-            p2_next_vertex = parent2[(parent2.index(start_vertex) + 1) % num_cities]
-            p1_edge = np.linalg.norm(cities[start_vertex] - cities[p1_next_vertex])
-            p2_edge = np.linalg.norm(cities[start_vertex] - cities[p2_next_vertex])
-            
-            if (p1_edge > p2_edge and not p2_next_vertex in child):
-                start_vertex = p2_next_vertex
-                child.append(p2_next_vertex)
-            elif (not p1_next_vertex in child):
-                start_vertex = p1_next_vertex
-                child.append(p1_next_vertex)
-            else:
-                start_vertex += 1
-                if (start_vertex == len(parent1)):
-                    vertexes_left = False
-                break
-        
-        if (vertexes_left and len(child) == len(parent1)):
-            break
+        if (p1_edge > p2_edge and not p2_next_vertex in child):
+            start_vertex = p2_next_vertex
+            child.append(p2_next_vertex)
+        elif (not p1_next_vertex in child):
+            start_vertex = p1_next_vertex
+            child.append(p1_next_vertex)
+        else:
+            next_vertex = random.sample(list(set(range(num_cities)).difference(set(child))), 1)[0]
+            start_vertex = next_vertex
+            child.append(next_vertex)
         
     return child
   
 # Create a NumPy random generator object
-rng = np.random.default_rng(seed=42) 
-# ^^ Set seed to 42, for repeatability when testing. Remove when debugging is complete
+rng = np.random.default_rng() 
 
 # Create an array of random cities
 cities = rng.normal(0, 1, (num_cities, 2))
@@ -60,7 +53,7 @@ best_fits = []
 #Randomly generate first generation
 for i in range(generation_size):
     curr_generation.append(random.sample(range(num_cities), num_cities))
-    curr_fitness.append(determine_fitness(curr_generation[-1]))
+    curr_fitness.append(determine_fitness(curr_generation[-1], cities))
 
 best_fits.append(sorted(curr_fitness)[0])
 
@@ -86,7 +79,7 @@ for i in range(1, num_generations):
         parent_pool.remove(parents[1])
         child = make_child(parents[0], parents[1], cities)
         curr_generation.append(child)
-        curr_fitness.append(determine_fitness(child))
+        curr_fitness.append(determine_fitness(child, cities))
         
     best_fits.append(sorted(curr_fitness)[0])
 
