@@ -2,14 +2,14 @@
 import numpy as np
 
 
-def GraphClear(graph,max_cycle_length):
+def GraphClear(graph):
     num_nodes = len(graph)
 
     #finding all cycles of up to max cycle length
     cycle = []
     all_cycles=[]
     for node in range(num_nodes):
-        for length in range(2,max_cycle_length+1):
+        for length in range(2,4):
             cycle.append(node)
             all_cycles +=(findCycles(node,graph,[],cycle,length))
             cycle = []
@@ -17,15 +17,13 @@ def GraphClear(graph,max_cycle_length):
    
     # removing same cycles, compare all the cycles
     no_duplicates = remove_cycles(all_cycles)
-                    
-   
     
     #determine all valid combos of cycles
     cycle_combos = get_cycle_combinations(no_duplicates)
-
  
     #determine which combo yields best weight
     max_weight = 0
+    max_combo = None
     for combo in cycle_combos:
         combo_weight= 0
         for cycle in combo:
@@ -34,14 +32,16 @@ def GraphClear(graph,max_cycle_length):
             max_combo = combo
             max_weight = combo_weight
     
-            
-   
-    return max_weight,max_combo
+    #Safety
+    if (max_combo == None):
+        return 0, []
+    else:
+        return max_weight,max_combo
 
 def get_cycle_combinations(all_cycles):
     combination = np.zeros(len(all_cycles))
     combos = []
-    while(combination !="done"):
+    while(len(combination) > 0):
         combo =[]
         for i in range(len(combination)):
             if combination[i] ==1:
@@ -74,7 +74,7 @@ def getNewCombination(old_combo):
     
     #check that if number is not returned!!
     if right_zero == "none":
-        return "done"
+        return []
     elif left_one == "none":
         old_combo[right_zero]=1
 
@@ -122,10 +122,9 @@ def getLeftMostOne(combo):
     return "none"
 
 def get_cycle_weight(cycle,graph):
-    weight= 0
+    weight = 0
     for i in range(len(cycle)-1):
         weight += graph[cycle[i]][cycle[i+1]]
-
 
     return weight              
 
@@ -157,6 +156,7 @@ def findCycles(curr_node,graph, cycles,cycle,length_cycle):
         #check that the last node returns to the starting node
         if graph[cycle[length_cycle-1]][cycle[0]] != 0:
             #cycle is valid
+            cycle.append(cycle[0])
             cycles.append(cycle)
                      
     else:
@@ -169,16 +169,4 @@ def findCycles(curr_node,graph, cycles,cycle,length_cycle):
                     cycle = hold_cycle[:len(hold_cycle)-1]
              
 
-    return cycles   
-        
-def main():
-    graph = [[0,2,12,0,0,0],
-             [0,0,0,10,3,1],
-             [0,0,0,5,0,0],
-             [3,0,0,0,2,0],
-             [0,0,0,0,0,10],
-             [0,3,7,0,0,0]]
-    
-    print(GraphClear(graph,3))
-
-main()
+    return cycles  
